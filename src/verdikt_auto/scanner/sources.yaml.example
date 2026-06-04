@@ -1,0 +1,39 @@
+youtube:
+  channels:
+    - name: "Фейгин Live"
+      id: "UC9BQ1NZs0LUtGfHkViMFt6A"
+      keywords: ["СВО", "Украина", "политика", "интервью"]
+    - name: "Курбанова Live"
+      id: "UCkKJclO6z1lQWCqw34Yz1Rg"
+      keywords: ["экономика", "финансы", "аналитика"]
+    - name: "DW на русском"
+      id: "UCQ4go_G6b7PxGjDcvFhxT_g"
+      keywords: ["европа", "германия", "международное"]
+
+telegram:
+  channels:
+    - "@meduzalive"
+    - "@bbcrussian"
+    - "@dw_russian"
+    - "@navalny"
+    - "@rbc_news"
+
+vk:
+  groups:
+    - id: "-1"
+      name: "Новости ВКонтакте"
+      keywords: ["новости", "россия", "мир"]
+    - id: "-29043671"
+      name: "RT Новости"
+      keywords: ["политика", "сво"]
+
+rss:
+  feeds:
+    - url: "https://ria.ru/export/rss2/archive/index.xml"
+      category: "general"
+    - url: "https://tass.ru/rss/v2.xml"
+      category: "general"
+    - url: "https://www.rbc.ru/v10/rss.rss"
+      category: "economy"
+    - url: "https://habr.com/ru/rss/all/all/"
+      category: "tech"

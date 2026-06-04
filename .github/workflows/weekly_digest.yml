@@ -1,0 +1,40 @@
+name: "VERDIKT Weekly Digest"
+
+on:
+  schedule:
+    - cron: "0 17 * * 0"   # 20:00 MSK every Sunday
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  TZ: "Europe/Moscow"
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Copy config
+        run: |
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+          echo "CHANNEL_ID=${{ secrets.CHANNEL_ID }}" >> .env
+
+      - name: Generate weekly report
+        run: python -m verdikt_auto.analytics --report weekly
+
+      - name: Send digest to channel
+        run: python -m verdikt_auto.publisher --broadcast digest
+
+      - name: Reset weekly challenges
+        run: python -m verdikt_auto.growth --reset-challenges

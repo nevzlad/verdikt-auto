@@ -1,0 +1,29 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+venv/
+.venv/
+
+# Data files
+data/
+*.db
+*.session
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Config (keep template, ignore real)
+config.yaml
+sources.yaml
+*.log

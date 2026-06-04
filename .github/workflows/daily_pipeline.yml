@@ -1,0 +1,74 @@
+name: "VERDIKT Daily Pipeline"
+
+on:
+  schedule:
+    - cron: "0 3 * * *"    # 06:00 MSK (winter) / 05:00 MSK (summer)
+  workflow_dispatch:
+    inputs:
+      force_topics:
+        description: "Comma-separated topics to prioritize"
+        required: false
+        default: ""
+
+env:
+  PYTHON_VERSION: "3.11"
+  TZ: "Europe/Moscow"
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Copy config
+        run: |
+          if [ ! -f .env ]; then
+            echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+            echo "CHANNEL_ID=${{ secrets.CHANNEL_ID }}" >> .env
+            echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+            echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
+          fi
+
+      - name: Run scanner
+        run: python -m verdikt_auto.scanner --run
+
+      - name: Generate content
+        run: python -m verdikt_auto.generator --generate 7
+
+      - name: Validate & format
+        run: python -m verdikt_auto.parser --validate
+
+      - name: SEO optimize
+        run: python -m verdikt_auto.seo --optimize
+
+      - name: Publish
+        run: python -m verdikt_auto.publisher --publish
+
+      - name: Collect metrics
+        run: python -m verdikt_auto.analytics --collect
+
+      - name: Commit generated data
+        run: |
+          git config user.name "VERDIKT Bot"
+          git config user.email "bot@verdikt.local"
+          git add data/ --force 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore: daily pipeline data [skip ci]"
+          git push || true
