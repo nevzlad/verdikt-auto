@@ -235,6 +235,10 @@ class Scheduler:
         ]
         self.dashboard.update_post_stats(post_list)
 
+    def run_once(self) -> None:
+        """Run one full pipeline cycle and exit."""
+        asyncio.run(self._run_pipeline())
+
     def stop(self) -> None:
         self._running = False
         self.post_scheduler.stop()

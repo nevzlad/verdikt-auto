@@ -18,7 +18,11 @@ def run_pipeline() -> None:
     settings = Settings()
     setup_logging(settings.log_level)
     scheduler = Scheduler(settings)
-    scheduler.run_forever()
+    once = "--once" in sys.argv
+    if once:
+        scheduler.run_once()
+    else:
+        scheduler.run_forever()
 
 
 def run_dashboard() -> None:

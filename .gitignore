@@ -27,3 +27,7 @@ Thumbs.db
 config.yaml
 sources.yaml
 *.log
+logs/
+logs.zip
+check_fail.py
+check_runs.py

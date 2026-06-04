@@ -47,23 +47,8 @@ jobs:
             echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
           fi
 
-      - name: Run scanner
-        run: python -m verdikt_auto.scanner --run
-
-      - name: Generate content
-        run: python -m verdikt_auto.generator --generate 7
-
-      - name: Validate & format
-        run: python -m verdikt_auto.parser --validate
-
-      - name: SEO optimize
-        run: python -m verdikt_auto.seo --optimize
-
-      - name: Publish
-        run: python -m verdikt_auto.publisher --publish
-
-      - name: Collect metrics
-        run: python -m verdikt_auto.analytics --collect
+      - name: Run full pipeline
+        run: python -m verdikt_auto.main pipeline --once
 
       - name: Commit generated data
         run: |
