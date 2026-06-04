@@ -54,6 +54,8 @@ class Settings(BaseSettings):
 
     # Flattened from .env
     log_level: str = "INFO"
+    dashboard_username: str = "admin"
+    dashboard_password: str = "admin"
 
     # Sub-configs
     ai: AIConfig = AIConfig()

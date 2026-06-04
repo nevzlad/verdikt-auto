@@ -36,7 +36,16 @@ class Scheduler:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self.router = AIRouter(settings)
+        api_keys = {
+            "openrouter": settings.ai.openrouter_api_key,
+            "groq": settings.ai.groq_api_key,
+            "cerebras": settings.ai.cerebras_api_key,
+            "gemini": settings.ai.gemini_api_key,
+            "deepseek": settings.ai.deepseek_api_key,
+            "replicate": settings.ai.replicate_api_key,
+        }
+        db_dir = settings.database_path.replace(".db", "")
+        self.router = AIRouter(api_keys=api_keys, db_path=db_dir)
         self.tracker = PostPerformanceTracker(
             db_path=settings.database_path.replace(".db", "_metrics.db"),
         )
@@ -58,8 +67,8 @@ class Scheduler:
         self.text_formatter = TextFormatter()
         self.seo_optimizer = TelegramSEOOptimizer()
         self.headline_optimizer = HeadlineOptimizer(self.router)
-        self.image_generator = ImageGenerator(settings)
-        self.tts_generator = TTSGenerator(settings)
+        self.image_generator = ImageGenerator(self.router)
+        self.tts_generator = TTSGenerator(self.router)
 
         scanners = self._init_scanners()
         self.aggregator = TopicAggregator(scanners)
@@ -73,25 +82,25 @@ class Scheduler:
         scanners = []
         try:
             from verdikt_auto.scanner.youtube_scanner import YouTubeScanner
-            youtube_cfgs = sources.get_sources("youtube")
-            if youtube_cfgs:
-                scanners.append(YouTubeScanner(youtube_cfgs, api_key=self.settings.scanner.youtube_api_key))
+            youtube_channels = sources.get_youtube_channels()
+            if youtube_channels:
+                scanners.append(YouTubeScanner(youtube_channels, api_key=self.settings.scanner.youtube_api_key))
         except Exception as exc:
             logger.warning("YouTube scanner init failed: %s", exc)
 
         try:
             from verdikt_auto.scanner.telegram_scanner import TelegramScanner
-            tg_cfgs = sources.get_sources("telegram")
-            if tg_cfgs:
-                scanners.append(TelegramScanner(tg_cfgs))
+            tg_channels = sources.get_telegram_channels()
+            if tg_channels:
+                scanners.append(TelegramScanner(tg_channels))
         except Exception as exc:
             logger.warning("Telegram scanner init failed: %s", exc)
 
         try:
             from verdikt_auto.scanner.rss_scanner import RSSScanner
-            rss_cfgs = sources.get_sources("rss")
-            if rss_cfgs:
-                scanners.append(RSSScanner(rss_cfgs))
+            rss_feeds = sources.get_rss_feeds()
+            if rss_feeds:
+                scanners.append(RSSScanner(rss_feeds))
         except Exception as exc:
             logger.warning("RSS scanner init failed: %s", exc)
 
